@@ -1,9 +1,12 @@
 /**
  * data.js — Dataset estático del álbum Panini FIFA World Cup 2026.
- * 980 estampas totales: 20 FWC (especiales) + 48 selecciones × 20 estampas.
+ * 980 estampas totales:
+ *   - 1 estampa Panini ("00", foil)
+ *   - 19 estampas FWC (FWC1–FWC19)
+ *   - 48 selecciones × 20 estampas (1 escudo foil + 11 jugadores + 1 foto grupal + 7 jugadores)
  *
  * Cada estampa: { code, label, foil, team, group, idx }
- * - foil: true para escudos (estampa 1 y 2 de cada equipo) y todas las FWC.
+ * - foil: true solo para "00" y el escudo (estampa 1) de cada equipo.
  */
 
 const TEAMS = [
@@ -80,6 +83,7 @@ const FWC_SECTION = {
   isSpecial: true
 };
 
+// 19 estampas FWC (FWC1–FWC19). La "00" Panini se añade aparte.
 const FWC_LABELS = [
   'Logo FIFA WC',
   'Trofeo',
@@ -91,7 +95,6 @@ const FWC_LABELS = [
   'Anfitrión: Canadá',
   'Anfitrión: México',
   'Anfitrión: USA',
-  'Sede emblema',
   'Sede emblema',
   'Sede emblema',
   'Sede emblema',
@@ -112,9 +115,24 @@ function buildDataset() {
   const stickers = {};
   const allCodes = [];
 
-  // FWC primero
+  // Sección FWC: estampa Panini "00" + FWC1..FWC19 (20 estampas en total)
   const fwcSection = { ...FWC_SECTION, codes: [] };
-  for (let i = 1; i <= 20; i++) {
+
+  // Estampa Panini global (foil, código "00") — primera del álbum
+  stickers['00'] = {
+    code: '00',
+    label: 'Estampa Panini',
+    foil: true,
+    special: true,
+    team: 'FWC',
+    group: 'FWC',
+    idx: 0
+  };
+  fwcSection.codes.push('00');
+  allCodes.push('00');
+
+  // FWC1..FWC19 (foil/especiales)
+  for (let i = 1; i <= 19; i++) {
     const code = `FWC${i}`;
     const meta = {
       code,
@@ -130,18 +148,24 @@ function buildDataset() {
   }
   sections.push(fwcSection);
 
-  // 48 equipos
+  // 48 equipos × 20 estampas:
+  //   1     → escudo (foil)
+  //   2-12  → 11 jugadores
+  //   13    → foto grupal
+  //   14-20 → 7 jugadores
   for (const t of TEAMS) {
     const section = { ...t, codes: [] };
+    let playerNum = 0;
     for (let i = 1; i <= 20; i++) {
       const code = `${t.code}${i}`;
-      // Estampas 1 y 2 son escudos foil
-      const foil = (i === 1 || i === 2);
+      const foil = (i === 1);
       let label;
       if (i === 1) label = 'Escudo';
-      else if (i === 2) label = 'Escudo';
-      else if (i === 13) label = 'Equipo';
-      else label = `Jugador ${i - 2}`;
+      else if (i === 13) label = 'Foto del equipo';
+      else {
+        playerNum++;
+        label = `Jugador ${playerNum}`;
+      }
       const meta = {
         code,
         label,
