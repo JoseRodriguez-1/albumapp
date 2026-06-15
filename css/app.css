@@ -278,6 +278,33 @@ input { font: inherit; color: inherit; }
 }
 
 /* ===== Team detail ===== */
+.team-detail {
+  /* fallbacks por si renderTeam no inyectó las variables */
+  --team-primary: var(--blue);
+  --team-secondary: var(--gold);
+}
+.team-detail .team-detail-header {
+  border-bottom: 2px solid var(--team-primary);
+  padding-bottom: 12px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--team-primary) 14%, transparent), transparent);
+  border-radius: 14px 14px 0 0;
+}
+.team-detail .progress-fill {
+  background: linear-gradient(90deg, var(--team-primary), var(--team-secondary));
+}
+.team-detail .sticker.have {
+  background: var(--team-primary);
+  border-color: color-mix(in srgb, var(--team-primary) 70%, #000);
+}
+.team-detail .sticker.foil.have {
+  background: linear-gradient(135deg, var(--team-primary), color-mix(in srgb, var(--team-primary) 70%, #000));
+}
+.team-detail .badge-complete {
+  background: var(--team-primary);
+  color: #fff;
+  border: 1px solid color-mix(in srgb, var(--team-primary) 65%, #000);
+}
+
 .team-detail-header {
   text-align: center;
   margin-bottom: 18px;
@@ -299,6 +326,7 @@ input { font: inherit; color: inherit; }
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin-top: 14px;
+  position: relative; /* ancla para .particle */
 }
 .sticker {
   aspect-ratio: 3 / 4;
@@ -522,3 +550,39 @@ input { font: inherit; color: inherit; }
 .modal h3 { font-size: 17px; margin-bottom: 8px; }
 .modal p { color: var(--text-dim); font-size: 14px; margin: 0 0 16px; }
 .modal .action-row { margin-top: 0; }
+
+/* ===== Animación celebración (0 → 1) ===== */
+.sticker.pop { animation: stickerPop 300ms ease-out; }
+@keyframes stickerPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.particle {
+  position: absolute;
+  left: var(--x, 0);
+  top: var(--y, 0);
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--c, #fff);
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: particleExplode 600ms ease-out forwards;
+  box-shadow: 0 0 4px var(--c, #fff);
+  z-index: 5;
+}
+@keyframes particleExplode {
+  0%   { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  15%  { transform: translate(calc(var(--dx) * 0.25), calc(var(--dy) * 0.25)) scale(1.2); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticker.pop { animation: none; }
+  .particle { display: none; }
+}

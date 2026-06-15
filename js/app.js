@@ -227,6 +227,47 @@ function renderTeams() {
   });
 }
 
+// ===== Animación de celebración =====
+
+const prefersReducedMotion = () =>
+  window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * Dispara un "pop" en el botón y lanza partículas con los colores del equipo.
+ * Si el usuario tiene reduced-motion activo, no hace nada (el cambio de color
+ * por estado .have ya basta como feedback).
+ */
+function celebrateSticker(btn, container, colors) {
+  if (prefersReducedMotion()) return;
+
+  // Pop scale en el propio sticker
+  btn.classList.add('pop');
+  btn.addEventListener('animationend', () => btn.classList.remove('pop'), { once: true });
+
+  // Partículas relativas al contenedor del grid
+  const cRect = container.getBoundingClientRect();
+  const bRect = btn.getBoundingClientRect();
+  const cx = bRect.left - cRect.left + bRect.width / 2;
+  const cy = bRect.top - cRect.top + bRect.height / 2;
+
+  const palette = [colors.primary, colors.secondary, colors.primary, '#ffffff'];
+  const count = 7;
+
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+    const dist = 40 + Math.random() * 30;
+    p.style.setProperty('--x', `${cx}px`);
+    p.style.setProperty('--y', `${cy}px`);
+    p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+    p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
+    p.style.setProperty('--c', palette[i % palette.length]);
+    p.addEventListener('animationend', () => p.remove(), { once: true });
+    container.appendChild(p);
+  }
+}
+
 // ===== Pantalla: Detalle de equipo =====
 
 function renderTeam(sectionCode) {
@@ -235,6 +276,8 @@ function renderTeam(sectionCode) {
 
   State.pushRecent(sectionCode);
   const st = State.sectionTotals(sectionCode);
+  const colors = getTeamColors(s.code);
+  const isComplete = st.owned === st.total;
 
   const stickersHtml = s.codes.map((code) => {
     const meta = DATA.stickers[code];
@@ -255,17 +298,22 @@ function renderTeam(sectionCode) {
   }).join('');
 
   screen.innerHTML = `
-    <div class="team-detail-header">
-      <div class="team-detail-flag">${s.flag}</div>
-      <div class="team-detail-name">${escapeHtml(s.name)}</div>
-      <div class="team-detail-meta">${s.group === 'FWC' ? 'Sección especial' : 'Grupo ' + s.group} · ${st.owned}/${st.total}</div>
+    <div class="team-detail" style="--team-primary:${colors.primary}; --team-secondary:${colors.secondary};">
+      <div class="team-detail-header">
+        <div class="team-detail-flag">${s.flag}</div>
+        <div class="team-detail-name">
+          ${escapeHtml(s.name)}
+          ${isComplete ? '<span class="badge-complete">✓ Completo</span>' : ''}
+        </div>
+        <div class="team-detail-meta">${s.group === 'FWC' ? 'Sección especial' : 'Grupo ' + s.group} · ${st.owned}/${st.total}</div>
+      </div>
+      ${progressBar(st.pct, true)}
+      <div class="progress-text"><strong>${st.owned}</strong> / ${st.total}<span>${st.pct.toFixed(1)}%</span></div>
+
+      <div class="stickers-grid" id="stickersGrid">${stickersHtml}</div>
+
+      <div class="hint-row">Tap: tengo → repetida ×2 → ×3 …  ·  Long press: quitar</div>
     </div>
-    ${progressBar(st.pct, true)}
-    <div class="progress-text"><strong>${st.owned}</strong> / ${st.total}<span>${st.pct.toFixed(1)}%</span></div>
-
-    <div class="stickers-grid" id="stickersGrid">${stickersHtml}</div>
-
-    <div class="hint-row">Tap: tengo → repetida ×2 → ×3 …  ·  Long press: quitar</div>
   `;
 
   // Listeners de sticker
@@ -278,8 +326,15 @@ function renderTeam(sectionCode) {
     if (!btn) return;
     if (longPressFired) { longPressFired = false; return; }
     const code = btn.dataset.code;
-    State.cycle(code);
+    const before = State.get(code);
+    const after = State.cycle(code);
     renderTeam(sectionCode); // re-render
+    // Celebración solo en la transición 0 → 1
+    if (before === 0 && after === 1) {
+      const newBtn = screen.querySelector(`.sticker[data-code="${code}"]`);
+      const newGrid = $('#stickersGrid', screen);
+      if (newBtn && newGrid) celebrateSticker(newBtn, newGrid, colors);
+    }
   });
 
   const startLongPress = (e) => {

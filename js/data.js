@@ -74,6 +74,68 @@ const TEAMS = [
 
 const GROUPS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 
+/**
+ * Colores temáticos por selección (basados en bandera/camiseta).
+ * Cuando un equipo no está aquí, el render usa el color por defecto (--blue).
+ */
+const TEAM_COLORS = {
+  MEX: { primary: '#006847', secondary: '#CE1126' },
+  ARG: { primary: '#74ACDF', secondary: '#FFFFFF' },
+  BRA: { primary: '#009C3B', secondary: '#FFDF00' },
+  FRA: { primary: '#002395', secondary: '#ED2939' },
+  ESP: { primary: '#AA151B', secondary: '#F1BF00' },
+  ENG: { primary: '#CF081F', secondary: '#FFFFFF' },
+  GER: { primary: '#000000', secondary: '#DD0000' },
+  POR: { primary: '#006600', secondary: '#FF0000' },
+  ITA: { primary: '#003399', secondary: '#009246' },
+  USA: { primary: '#002868', secondary: '#BF0A30' },
+  COL: { primary: '#FCD116', secondary: '#003087' },
+  URU: { primary: '#5EB6E4', secondary: '#FFFFFF' },
+  CAN: { primary: '#FF0000', secondary: '#FFFFFF' },
+  CRO: { primary: '#FF0000', secondary: '#FFFFFF' },
+  NED: { primary: '#FF6600', secondary: '#003DA5' },
+  MAR: { primary: '#C1272D', secondary: '#006233' },
+  SEN: { primary: '#00853F', secondary: '#FDEF42' },
+  JPN: { primary: '#BC002D', secondary: '#FFFFFF' },
+  KOR: { primary: '#CD2E3A', secondary: '#003478' },
+  CZE: { primary: '#D7141A', secondary: '#11457E' },
+  RSA: { primary: '#007A4D', secondary: '#FFB81C' },
+  BIH: { primary: '#002395', secondary: '#FCCA00' },
+  QAT: { primary: '#8D1B3D', secondary: '#FFFFFF' },
+  SUI: { primary: '#FF0000', secondary: '#FFFFFF' },
+  HAI: { primary: '#00209F', secondary: '#D21034' },
+  NZL: { primary: '#000000', secondary: '#FFFFFF' },
+  CHI: { primary: '#D52B1E', secondary: '#003087' },
+  FIN: { primary: '#003580', secondary: '#FFFFFF' },
+  NGA: { primary: '#008751', secondary: '#FFFFFF' },
+  THA: { primary: '#A51931', secondary: '#2D2A4A' },
+  GHA: { primary: '#006B3F', secondary: '#FCD116' },
+  AUS: { primary: '#00843D', secondary: '#FFD700' },
+  EGY: { primary: '#CE1126', secondary: '#000000' },
+  KSA: { primary: '#006C35', secondary: '#FFFFFF' },
+  ALB: { primary: '#E41E20', secondary: '#000000' },
+  PAR: { primary: '#D52B1E', secondary: '#0038A8' },
+  AUT: { primary: '#ED2939', secondary: '#FFFFFF' },
+  IRL: { primary: '#169B62', secondary: '#FF883E' },
+  IRN: { primary: '#239F40', secondary: '#DA0000' },
+  BEL: { primary: '#000000', secondary: '#EF3340' },
+  PAN: { primary: '#DB1E36', secondary: '#003A70' },
+  TUN: { primary: '#E70013', secondary: '#FFFFFF' },
+  DEN: { primary: '#C60C30', secondary: '#FFFFFF' },
+  ECU: { primary: '#FFD100', secondary: '#003087' },
+  VEN: { primary: '#CF142B', secondary: '#00247D' },
+  CMR: { primary: '#007A5E', secondary: '#CE1126' },
+  CRI: { primary: '#002B7F', secondary: '#CE1126' },
+  UZB: { primary: '#1EB53A', secondary: '#0099B5' },
+  FWC: { primary: '#D4A843', secondary: '#FFFFFF' }
+};
+
+const DEFAULT_TEAM_COLOR = { primary: '#3b6fd4', secondary: '#d4a843' };
+
+function getTeamColors(code) {
+  return TEAM_COLORS[code] || DEFAULT_TEAM_COLOR;
+}
+
 // Sección FWC (especial): 20 estampas, todas foil/especiales
 const FWC_SECTION = {
   code: 'FWC',
